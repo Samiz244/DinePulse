@@ -1,12 +1,26 @@
 import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useMenuItems } from '../hooks/useMenuItems'
-import AddItemModal from './AddItemModal'
+import { supabase } from '../services/supabaseClient'
+import MenuItemModal from './MenuItemModal'
 
 export default function MenuDashboard({ restaurant }) {
   const { signOut } = useAuth()
   const { items, isLoading, refetch } = useMenuItems(restaurant.id)
-  const [modalOpen, setModalOpen] = useState(false)
+  const [addModalOpen, setAddModalOpen] = useState(false)
+  const [editingItem,  setEditingItem]  = useState(null)
+  const [deleteError,  setDeleteError]  = useState(null)
+
+  async function handleDelete(item) {
+    if (!window.confirm(`Delete "${item.name}"? This cannot be undone.`)) return
+    setDeleteError(null)
+    const { error } = await supabase.from('menu_items').delete().eq('id', item.id)
+    if (error) {
+      setDeleteError('Failed to delete item. Please try again.')
+      return
+    }
+    refetch()
+  }
 
   return (
     <div className="min-h-screen bg-[#F5F5F5] font-sans">
@@ -28,11 +42,15 @@ export default function MenuDashboard({ restaurant }) {
         {/* Section header */}
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-base font-semibold text-[#212121]">Your Menu</h2>
-          <button onClick={() => setModalOpen(true)}
+          <button onClick={() => setAddModalOpen(true)}
             className="bg-[#FF5722] text-white text-sm font-semibold rounded-full px-4 py-1.5 hover:bg-[#E64A19] active:scale-95 transition-all">
             + Add Item
           </button>
         </div>
+
+        {deleteError && (
+          <p className="text-sm text-red-600 bg-red-50 rounded-xl px-4 py-3 mb-3">{deleteError}</p>
+        )}
 
         {/* List */}
         {isLoading ? (
@@ -55,21 +73,44 @@ export default function MenuDashboard({ restaurant }) {
                     <p className="text-xs text-[#BDBDBD] mt-0.5 truncate">{item.description}</p>
                   )}
                 </div>
-                <span className="text-sm font-bold text-[#FF5722] ml-4 shrink-0">
-                  £{parseFloat(item.price).toFixed(2)}
-                </span>
+                <div className="flex items-center gap-2 ml-4 shrink-0">
+                  <span className="text-sm font-bold text-[#FF5722]">
+                    £{parseFloat(item.price).toFixed(2)}
+                  </span>
+                  <button
+                    onClick={() => setEditingItem(item)}
+                    className="text-xs font-medium text-[#757575] hover:text-[#212121] transition-colors px-2 py-1 rounded-lg hover:bg-[#F5F5F5]">
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(item)}
+                    className="text-xs font-medium text-red-500 hover:text-red-700 transition-colors px-2 py-1 rounded-lg hover:bg-red-50">
+                    Delete
+                  </button>
+                </div>
               </li>
             ))}
           </ul>
         )}
       </main>
 
-      <AddItemModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
+      <MenuItemModal
+        isOpen={addModalOpen}
+        onClose={() => setAddModalOpen(false)}
         restaurantId={restaurant.id}
         onSuccess={refetch}
+        mode="add"
       />
+
+      <MenuItemModal
+        isOpen={editingItem !== null}
+        onClose={() => setEditingItem(null)}
+        restaurantId={restaurant.id}
+        onSuccess={() => { refetch(); setEditingItem(null) }}
+        mode="edit"
+        initialData={editingItem}
+      />
+
     </div>
   )
 }
