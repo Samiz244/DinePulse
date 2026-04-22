@@ -41,28 +41,35 @@ export default function AuthModal({ isOpen, onClose }) {
   }
 
   const inputClass =
-    'w-full bg-[#F5F5F5] rounded-xl px-4 py-3 text-sm text-[#212121] placeholder-[#BDBDBD] outline-none focus:ring-2 focus:ring-[#FF5722]'
+    'w-full bg-[#F5F5F5] border-none rounded-xl px-4 py-3 text-sm text-[#212121] placeholder-[#BDBDBD] outline-none focus:ring-2 focus:ring-[#FF5722] transition-shadow'
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center">
-      {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+    /* Overlay — bg-black/60, full-screen on mobile, centred card on sm+ */
+    <div className="fixed inset-0 bg-black/60 z-50 flex items-end sm:items-center justify-center">
+      {/* Backdrop click closes modal */}
+      <div className="absolute inset-0" onClick={onClose} />
 
-      {/* Sheet */}
-      <div className="relative w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-2xl p-6 shadow-xl">
+      {/* Card — full-width sheet on mobile, rounded card on sm+ */}
+      <div className="relative bg-white w-full sm:max-w-md sm:rounded-3xl rounded-t-3xl overflow-hidden shadow-2xl px-6 pt-8 pb-10 sm:px-8 sm:pt-10 sm:pb-10">
 
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-[#212121]">
-            {mode === 'login' ? 'Welcome back' : 'Create account'}
-          </h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-[#757575] hover:text-[#212121] text-2xl leading-none"
-          >
-            ×
-          </button>
+        {/* Close button */}
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close"
+          className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full text-[#757575] hover:text-[#212121] hover:bg-[#F5F5F5] transition-colors text-xl leading-none"
+        >
+          ×
+        </button>
+
+        {/* Brand header */}
+        <div className="text-center mb-7">
+          <span className="text-3xl font-bold text-[#FF5722]">DinePulse</span>
+          <p className="text-sm text-[#757575] mt-2">
+            {mode === 'login'
+              ? 'Welcome back! Please enter your details.'
+              : 'Create your account to get started.'}
+          </p>
         </div>
 
         {/* Tab toggle */}
@@ -72,10 +79,10 @@ export default function AuthModal({ isOpen, onClose }) {
               key={m}
               type="button"
               onClick={() => switchMode(m)}
-              className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${
+              className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-all ${
                 mode === m
                   ? 'bg-white text-[#FF5722] shadow-sm'
-                  : 'text-[#757575]'
+                  : 'text-[#757575] hover:text-[#212121]'
               }`}
             >
               {m === 'login' ? 'Sign In' : 'Sign Up'}
@@ -132,21 +139,22 @@ export default function AuthModal({ isOpen, onClose }) {
               <label className="block text-sm font-medium text-[#212121] mb-2">I am a…</label>
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { value: 'customer', label: '🛒 Customer', desc: 'Browse & order food' },
-                  { value: 'manager', label: '🍽️ Manager', desc: 'Manage my restaurant' },
-                ].map(({ value, label, desc }) => (
+                  { value: 'customer', icon: '🛒', label: 'Customer', desc: 'Browse & order food' },
+                  { value: 'manager', icon: '🍽️', label: 'Manager', desc: 'Manage my restaurant' },
+                ].map(({ value, icon, label, desc }) => (
                   <button
                     key={value}
                     type="button"
                     onClick={() => setRole(value)}
-                    className={`p-3 rounded-xl border-2 text-left transition-all ${
+                    className={`flex flex-col items-center text-center gap-1.5 py-5 px-3 rounded-2xl border-2 transition-all active:scale-95 ${
                       role === value
-                        ? 'border-[#FF5722] bg-[#FFF3F0]'
-                        : 'border-[#E0E0E0] bg-white'
+                        ? 'border-[#FF5722] bg-[#FFF3F0] shadow-sm'
+                        : 'border-[#E0E0E0] bg-white hover:border-[#BDBDBD]'
                     }`}
                   >
+                    <span className="text-3xl">{icon}</span>
                     <p className="text-sm font-semibold text-[#212121]">{label}</p>
-                    <p className="text-xs text-[#757575] mt-0.5">{desc}</p>
+                    <p className="text-xs text-[#757575] leading-snug">{desc}</p>
                   </button>
                 ))}
               </div>
@@ -162,7 +170,7 @@ export default function AuthModal({ isOpen, onClose }) {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-[#FF5722] text-white font-semibold rounded-xl py-3.5 text-base hover:bg-[#E64A19] active:scale-95 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full bg-[#FF5722] text-white font-semibold rounded-xl py-3.5 text-base hover:bg-[#E64A19] active:scale-95 transition-all disabled:opacity-60 disabled:cursor-not-allowed mt-1"
           >
             {isSubmitting
               ? 'Please wait…'

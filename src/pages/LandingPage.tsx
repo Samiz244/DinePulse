@@ -1,34 +1,10 @@
 import { useState } from 'react'
-import { Routes, Route } from 'react-router-dom'
-import { useAuth } from './context/AuthContext'
-import { useRestaurant } from './hooks/useRestaurant'
-import AuthModal from './components/AuthModal'
-import RestaurantSetupForm from './components/RestaurantSetupForm'
-import MenuDashboard from './components/MenuDashboard'
-import RestaurantPage from './components/RestaurantPage'
+import { useAuth } from '../context/AuthContext'
+import AuthModal from '../components/AuthModal'
 
-function AppShell() {
-  const { user, isLoading: authLoading, signOut } = useAuth()
-  const { restaurant, isLoading: restaurantLoading, refetch } = useRestaurant(user)
+export default function LandingPage() {
+  const { user, signOut } = useAuth()
   const [authModalOpen, setAuthModalOpen] = useState(false)
-
-  // Hold render until auth session is resolved — prevents flash of wrong state
-  if (authLoading) return null
-
-  // Manager with no restaurant → onboarding flow
-  if (user?.role === 'manager') {
-    if (restaurantLoading) {
-      return (
-        <div className="min-h-screen bg-[#F5F5F5] flex items-center justify-center">
-          <p className="text-sm text-[#757575]">Loading…</p>
-        </div>
-      )
-    }
-    if (!restaurant) {
-      return <RestaurantSetupForm onSuccess={refetch} />
-    }
-    return <MenuDashboard restaurant={restaurant} />
-  }
 
   return (
     <div className="min-h-screen bg-[#F5F5F5] font-sans">
@@ -154,14 +130,3 @@ function AppShell() {
     </div>
   )
 }
-
-function App() {
-  return (
-    <Routes>
-      <Route path="/restaurant/:id" element={<RestaurantPage />} />
-      <Route path="/*" element={<AppShell />} />
-    </Routes>
-  )
-}
-
-export default App

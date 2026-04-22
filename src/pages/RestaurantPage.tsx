@@ -2,8 +2,8 @@ import { useParams } from 'react-router-dom'
 import { usePublicMenu } from '../hooks/usePublicMenu'
 
 export default function RestaurantPage() {
-  const { id } = useParams()
-  const { restaurant, groupedMenu, isLoading, notFound } = usePublicMenu(id)
+  const { slug } = useParams<{ slug: string }>()
+  const { restaurant, groupedMenu, isLoading, notFound } = usePublicMenu(slug ?? '')
 
   if (isLoading) {
     return (
@@ -37,9 +37,9 @@ export default function RestaurantPage() {
         <div className="max-w-lg mx-auto">
           <span className="text-2xl font-bold tracking-tight text-[#FF5722]">DinePulse</span>
           <div className="mt-3">
-            <h1 className="text-xl font-bold text-[#212121]">{restaurant.name}</h1>
-            {restaurant.cuisine_type && (
-              <p className="text-sm text-[#757575] mt-0.5">{restaurant.cuisine_type}</p>
+            <h1 className="text-xl font-bold text-[#212121]">{restaurant!.name}</h1>
+            {restaurant!.cuisine_type && (
+              <p className="text-sm text-[#757575] mt-0.5">{restaurant!.cuisine_type}</p>
             )}
           </div>
         </div>
@@ -61,7 +61,7 @@ export default function RestaurantPage() {
                     )}
                   </div>
                   <span className="text-sm font-bold text-[#FF5722] shrink-0">
-                    £{parseFloat(item.price).toFixed(2)}
+                    £{parseFloat(String(item.price)).toFixed(2)}
                   </span>
                 </li>
               ))}

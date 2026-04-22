@@ -1,0 +1,3 @@
+ALTER TABLE restaurants DROP COLUMN IF EXISTS staff_code;
+ALTER TABLE restaurants DROP COLUMN IF EXISTS slug;
+DROP TABLE IF EXISTS leads;
