@@ -1,11 +1,13 @@
 import { useState } from 'react'
+import { Routes, Route } from 'react-router-dom'
 import { useAuth } from './context/AuthContext'
 import { useRestaurant } from './hooks/useRestaurant'
 import AuthModal from './components/AuthModal'
 import RestaurantSetupForm from './components/RestaurantSetupForm'
 import MenuDashboard from './components/MenuDashboard'
+import RestaurantPage from './components/RestaurantPage'
 
-function App() {
+function AppShell() {
   const { user, isLoading: authLoading, signOut } = useAuth()
   const { restaurant, isLoading: restaurantLoading, refetch } = useRestaurant(user)
   const [authModalOpen, setAuthModalOpen] = useState(false)
@@ -150,6 +152,15 @@ function App() {
       </nav>
 
     </div>
+  )
+}
+
+function App() {
+  return (
+    <Routes>
+      <Route path="/restaurant/:id" element={<RestaurantPage />} />
+      <Route path="/*" element={<AppShell />} />
+    </Routes>
   )
 }
 

@@ -30,6 +30,14 @@ export default function MenuDashboard({ restaurant }) {
         <div>
           <span className="text-xl font-bold tracking-tight text-[#FF5722]">{restaurant.name}</span>
           <span className="ml-2 text-sm text-[#757575]">{restaurant.cuisine_type}</span>
+          <a
+            href={`/restaurant/${restaurant.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs text-[#757575] hover:text-[#FF5722] underline transition-colors ml-2"
+          >
+            View public page ↗
+          </a>
         </div>
         <button onClick={signOut}
           className="text-sm font-medium text-[#FF5722] border border-[#FF5722] rounded-full px-4 py-1.5 hover:bg-[#FF5722] hover:text-white transition-colors">
