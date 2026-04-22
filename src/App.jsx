@@ -1,10 +1,30 @@
 import { useState } from 'react'
 import { useAuth } from './context/AuthContext'
+import { useRestaurant } from './hooks/useRestaurant'
 import AuthModal from './components/AuthModal'
+import RestaurantSetupForm from './components/RestaurantSetupForm'
 
 function App() {
-  const { user, signOut } = useAuth()
+  const { user, isLoading: authLoading, signOut } = useAuth()
+  const { restaurant, isLoading: restaurantLoading, refetch } = useRestaurant(user)
   const [authModalOpen, setAuthModalOpen] = useState(false)
+
+  // Hold render until auth session is resolved — prevents flash of wrong state
+  if (authLoading) return null
+
+  // Manager with no restaurant → onboarding flow
+  if (user?.role === 'manager') {
+    if (restaurantLoading) {
+      return (
+        <div className="min-h-screen bg-[#F5F5F5] flex items-center justify-center">
+          <p className="text-sm text-[#757575]">Loading…</p>
+        </div>
+      )
+    }
+    if (!restaurant) {
+      return <RestaurantSetupForm onSuccess={refetch} />
+    }
+  }
 
   return (
     <div className="min-h-screen bg-[#F5F5F5] font-sans">
