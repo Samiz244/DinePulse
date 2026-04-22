@@ -3,6 +3,7 @@ import { useAuth } from './context/AuthContext'
 import { useRestaurant } from './hooks/useRestaurant'
 import AuthModal from './components/AuthModal'
 import RestaurantSetupForm from './components/RestaurantSetupForm'
+import MenuDashboard from './components/MenuDashboard'
 
 function App() {
   const { user, isLoading: authLoading, signOut } = useAuth()
@@ -24,6 +25,7 @@ function App() {
     if (!restaurant) {
       return <RestaurantSetupForm onSuccess={refetch} />
     }
+    return <MenuDashboard restaurant={restaurant} />
   }
 
   return (
