@@ -1,5 +1,9 @@
 export type UserRole = 'customer' | 'manager' | 'staff'
 
+// Mirrors the CHECK constraint on menu_items.category in the DB schema.
+// Update both here and the MENU_CATEGORIES constant if categories change.
+export type MenuCategory = 'Pizzas' | 'Sides' | 'Drinks' | 'Desserts'
+
 export interface AuthUser {
   id:       string
   email:    string
@@ -22,7 +26,7 @@ export interface MenuItem {
   name:          string
   description:   string | null
   price:         number
-  category:      string
+  category:      MenuCategory
   is_available:  boolean
   created_at:    string
 }
