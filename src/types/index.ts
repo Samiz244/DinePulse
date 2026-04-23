@@ -31,6 +31,18 @@ export interface MenuItem {
   created_at:    string
 }
 
+export interface CartItem {
+  id:       string
+  name:     string
+  price:    number   // unit price snapshotted at add time
+  quantity: number   // always ≥ 1
+}
+
+export interface CartState {
+  restaurantId: string | null   // null = empty, unbound cart
+  items:        CartItem[]
+}
+
 export interface Lead {
   id:              string
   email:           string
@@ -38,6 +50,29 @@ export interface Lead {
   status:          'pending' | 'approved'
   created_at:      string
 }
+
+export type OrderStatus = 'pending' | 'preparing' | 'ready' | 'completed'
+
+export interface OrderItem {
+  id:            string
+  order_id:      string
+  menu_item_id:  string | null  // null if item was deleted post-order
+  name:          string         // snapshot at order time
+  quantity:      number
+  price_at_time: number
+}
+
+export interface Order {
+  id:            string
+  restaurant_id: string
+  table_number:  number | null
+  status:        OrderStatus
+  total_price:   number
+  created_at:    string
+  order_items:   OrderItem[]
+}
+
+export type KDSOrder = Order
 
 export interface StaffSession {
   restaurantId: string

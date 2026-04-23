@@ -20,7 +20,7 @@ export function useRestaurant(user) {
 
     supabase
       .from('restaurants')
-      .select('id, owner_id, name, cuisine_type, created_at')
+      .select('id, owner_id, name, cuisine_type, slug, staff_code, created_at')
       .eq('owner_id', user.id)
       .limit(1)
       .maybeSingle()

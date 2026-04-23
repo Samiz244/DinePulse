@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(git -C /Users/sam/DinePulse status)",
+      "Bash(git -C /Users/sam/DinePulse check-ignore -v .env.local)",
+      "Bash(git -C /Users/sam/DinePulse add package.json package-lock.json src/services/ supabase/)",
+      "Bash(git -C /Users/sam/DinePulse commit -m ' *)",
+      "Bash(git -C /Users/sam/DinePulse push origin master)",
+      "Bash(git -C /Users/sam/DinePulse remote -v)",
+      "Bash(git -C /Users/sam/DinePulse remote add origin https://github.com/Samiz244/DinePulse.git)",
+      "Bash(git -C /Users/sam/DinePulse push -u origin master)",
+      "Bash(git -C /Users/sam/DinePulse remote set-url origin https://github.com/samiz244/DinePulse.git)",
+      "Bash(git -C /Users/sam/DinePulse add src/App.jsx src/main.jsx src/components/ src/context/)",
+      "Bash(git -C /Users/sam/DinePulse checkout src/App.css vite.config.js)",
+      "Bash(git -C /Users/sam/DinePulse add src/App.jsx src/components/RestaurantSetupForm.jsx src/hooks/ supabase/migrations/002_create_restaurant_rpc.sql supabase/migrations/002_rollback.sql)",
+      "Bash(git -C /Users/sam/DinePulse add src/App.jsx src/components/AddItemModal.jsx src/components/MenuDashboard.jsx src/constants/ src/hooks/useMenuItems.js supabase/migrations/003_menu_items_category_constraint.sql supabase/migrations/003_rollback.sql)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(npx tsc *)",
+      "Bash(./node_modules/.bin/tsc --noEmit)",
+      "Bash(node_modules/.bin/tsc --noEmit)",
+      "Bash(git rm *)",
+      "Bash(echo \"---TSC EXIT: $?\")",
+      "Bash(echo \"TSC: $?\")",
+      "Bash(curl -s http://localhost:5173)"
+    ]
+  }
+}

@@ -1,131 +1,248 @@
 import { useState } from 'react'
-import { useAuth } from '../context/AuthContext'
-import AuthModal from '../components/AuthModal'
+import { Link } from 'react-router-dom'
+import { supabase } from '../services/supabaseClient'
+import './LandingPage.css'
+
+interface LeadForm {
+  email:           string
+  restaurant_name: string
+}
 
 export default function LandingPage() {
-  const { user, signOut } = useAuth()
-  const [authModalOpen, setAuthModalOpen] = useState(false)
+  const [form, setForm]         = useState<LeadForm>({ email: '', restaurant_name: '' })
+  const [submitting, setSubmitting] = useState(false)
+  const [success, setSuccess]   = useState(false)
+  const [error, setError]       = useState<string | null>(null)
+
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }))
+  }
+
+  async function handleLeadSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    setError(null)
+    setSubmitting(true)
+
+    const { error: dbError } = await supabase.from('leads').insert({
+      email:           form.email.trim().toLowerCase(),
+      restaurant_name: form.restaurant_name.trim(),
+      status:          'pending',
+    })
+
+    setSubmitting(false)
+
+    if (dbError) {
+      if (dbError.message.includes('duplicate') || dbError.message.includes('unique')) {
+        setError("This email has already been submitted. We'll be in touch soon.")
+      } else {
+        setError('Something went wrong. Please try again.')
+      }
+      return
+    }
+
+    setSuccess(true)
+    setForm({ email: '', restaurant_name: '' })
+  }
 
   return (
-    <div className="min-h-screen bg-[#F5F5F5] font-sans">
+    <div className="lp-page">
 
-      {/* Top Nav */}
-      <header className="sticky top-0 z-50 bg-white shadow-sm px-4 py-3 flex items-center justify-between">
-        <span className="text-2xl font-bold tracking-tight text-[#FF5722]">
-          DinePulse
-        </span>
-        {user ? (
-          <div className="flex items-center gap-3">
-            <span className="text-sm font-medium text-[#212121] truncate max-w-[120px]">
-              {user.fullName}
-            </span>
-            <button
-              onClick={signOut}
-              className="text-sm font-medium text-[#FF5722] border border-[#FF5722] rounded-full px-4 py-1.5 hover:bg-[#FF5722] hover:text-white transition-colors"
-            >
-              Sign out
-            </button>
-          </div>
-        ) : (
-          <button
-            onClick={() => setAuthModalOpen(true)}
-            className="text-sm font-medium text-[#FF5722] border border-[#FF5722] rounded-full px-4 py-1.5 hover:bg-[#FF5722] hover:text-white transition-colors"
-          >
-            Sign in
-          </button>
-        )}
-      </header>
+      {/* ── Nav ──────────────────────────────────────────── */}
+      <nav className="lp-nav">
+        <span className="lp-nav-logo">DinePulse</span>
+        <div className="lp-nav-actions">
+          <Link to="/staff" className="lp-btn-ghost">Staff Entry</Link>
+          <Link to="/login" className="lp-btn-primary">Sign In</Link>
+        </div>
+      </nav>
 
-      <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
+      {/* ── Hero ─────────────────────────────────────────── */}
+      <section className="lp-hero">
+        <div className="lp-hero-tag">
+          <span className="lp-hero-tag-dot" />
+          Real-time restaurant operations
+        </div>
 
-      {/* Hero */}
-      <section className="bg-white px-4 pt-10 pb-12 text-center">
-        <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-[#212121] leading-tight">
-          Discover &amp; order<br />
-          <span className="text-[#FF5722]">amazing food</span>
+        <h1 className="lp-hero-headline">
+          The Synchronized<br />
+          <span className="lp-hero-headline-accent">Dining Room.</span>
         </h1>
-        <p className="mt-4 text-base text-[#757575] max-w-sm mx-auto">
-          Your favourite restaurants, delivered fast.
+
+        <p className="lp-hero-sub">
+          Turn dining room chaos into a real-time reactive loop. Every order, every table,
+          every kitchen ticket — in perfect sync from the moment a guest sits down.
         </p>
 
-        {/* Search bar */}
-        <div className="mt-6 flex items-center gap-2 bg-[#F5F5F5] rounded-xl px-4 py-3 max-w-md mx-auto shadow-sm">
-          <svg className="w-5 h-5 text-[#757575] shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-            <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
-          </svg>
-          <input
-            type="text"
-            placeholder="Search restaurants or cuisines…"
-            className="flex-1 bg-transparent text-sm text-[#212121] placeholder-[#BDBDBD] outline-none"
-          />
-        </div>
-
-        {/* CTA */}
-        <button className="mt-6 w-full max-w-md mx-auto block bg-[#FF5722] text-white font-semibold rounded-xl py-3.5 text-base hover:bg-[#E64A19] active:scale-95 transition-all">
-          Find food near me
-        </button>
-      </section>
-
-      {/* Category pills */}
-      <section className="px-4 pt-6">
-        <h2 className="text-base font-semibold text-[#212121] mb-3">Browse by category</h2>
-        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-          {['🍕 Pizza', '🍔 Burgers', '🍣 Sushi', '🌮 Tacos', '🍜 Noodles', '🥗 Healthy', '🍗 Chicken', '🍦 Desserts'].map((cat) => (
-            <button
-              key={cat}
-              className="shrink-0 bg-white rounded-xl px-4 py-2 text-sm font-medium text-[#212121] shadow-sm hover:shadow-md hover:text-[#FF5722] transition-all border border-transparent hover:border-[#FF5722]"
-            >
-              {cat}
-            </button>
-          ))}
+        <div className="lp-hero-cta-row">
+          <a href="#partner" className="lp-btn-hero-primary">
+            Partner with us →
+          </a>
+          <a href="#portals" className="lp-btn-hero-ghost">
+            See how it works
+          </a>
         </div>
       </section>
 
-      {/* Featured restaurants */}
-      <section className="px-4 pt-8 pb-24">
-        <h2 className="text-base font-semibold text-[#212121] mb-4">Featured near you</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {/* ── Stats ────────────────────────────────────────── */}
+      <div className="lp-stats">
+        {[
+          { value: '<2s',   label: 'Order-to-kitchen latency' },
+          { value: '99.9%', label: 'Uptime guarantee' },
+          { value: '0',     label: 'Missed tickets' },
+          { value: '∞',     label: 'Tables, no bottleneck' },
+        ].map(({ value, label }) => (
+          <div key={label} className="lp-stat">
+            <span className="lp-stat-value">{value}</span>
+            <p className="lp-stat-label">{label}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Features ─────────────────────────────────────── */}
+      <section className="lp-features">
+        <p className="lp-section-label">The platform</p>
+        <h2 className="lp-section-title">One loop.<br />Every role connected.</h2>
+        <p className="lp-section-sub">
+          DinePulse is not a POS. It's the reactive layer between your front-of-house,
+          kitchen, and management — built to close the loop in real time.
+        </p>
+
+        <div className="lp-features-grid">
           {[
-            { name: "The Burger Joint", tag: "Burgers · $$", time: "20–30 min", rating: "4.8" },
-            { name: "Tokyo Ramen House", tag: "Japanese · $$", time: "25–35 min", rating: "4.7" },
-            { name: "Slice &amp; Dice Pizza", tag: "Pizza · $", time: "15–25 min", rating: "4.9" },
-            { name: "Green Bowl Co.", tag: "Healthy · $$", time: "20–30 min", rating: "4.6" },
-          ].map((r) => (
-            <div key={r.name} className="bg-white rounded-[1rem] overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-              <div className="h-36 bg-gradient-to-br from-[#FF8A65] to-[#FF5722] flex items-center justify-center">
-                <span className="text-white text-4xl">🍽️</span>
-              </div>
-              <div className="p-4">
-                <p className="font-semibold text-[#212121] text-sm"
-                  dangerouslySetInnerHTML={{ __html: r.name }} />
-                <p className="text-xs text-[#757575] mt-0.5"
-                  dangerouslySetInnerHTML={{ __html: r.tag }} />
-                <div className="flex items-center justify-between mt-3">
-                  <span className="text-xs text-[#757575]">{r.time}</span>
-                  <span className="flex items-center gap-1 text-xs font-medium text-[#FF5722]">
-                    ⭐ {r.rating}
-                  </span>
-                </div>
-              </div>
+            {
+              icon: '⚡',
+              title: 'Live Order Stream',
+              desc:  'Every item added by a customer appears on the KDS within milliseconds — no polling, no refresh.',
+            },
+            {
+              icon: '🍽️',
+              title: 'Menu Management',
+              desc:  'Managers update prices and availability from any device. Changes propagate instantly to every public menu.',
+            },
+            {
+              icon: '👨‍🍳',
+              title: 'Kitchen Display System',
+              desc:  'Staff access the KDS with a short code — no logins, no friction. Designed for the heat of service.',
+            },
+            {
+              icon: '📊',
+              title: 'Single Source of Truth',
+              desc:  'One database, one schema. Every role reads from and writes to the same live data layer.',
+            },
+            {
+              icon: '🔒',
+              title: 'Role-Based Access',
+              desc:  'Customers browse. Managers administer. Staff execute. Each role sees exactly what they need.',
+            },
+            {
+              icon: '📱',
+              title: 'Mobile-First',
+              desc:  'Built for the pocket-sized devices your team already carries. No hardware investment required.',
+            },
+          ].map(({ icon, title, desc }) => (
+            <div key={title} className="lp-feature-card">
+              <div className="lp-feature-icon">{icon}</div>
+              <p className="lp-feature-title">{title}</p>
+              <p className="lp-feature-desc">{desc}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Bottom nav */}
-      <nav className="fixed bottom-0 inset-x-0 bg-white border-t border-[#E0E0E0] flex justify-around py-3 z-50">
-        {[
-          { icon: '🏠', label: 'Home' },
-          { icon: '🔍', label: 'Search' },
-          { icon: '🛒', label: 'Orders' },
-          { icon: '👤', label: 'Profile' },
-        ].map(({ icon, label }) => (
-          <button key={label} className="flex flex-col items-center gap-0.5 text-[#757575] hover:text-[#FF5722] transition-colors">
-            <span className="text-xl">{icon}</span>
-            <span className="text-[10px] font-medium">{label}</span>
-          </button>
-        ))}
-      </nav>
+      {/* ── Portal cards ─────────────────────────────────── */}
+      <section className="lp-portals" id="portals">
+        <p className="lp-section-label">Access portals</p>
+        <h2 className="lp-section-title">Your role. Your view.</h2>
+        <p className="lp-section-sub">
+          Every stakeholder in the dining room has a dedicated, purpose-built interface.
+        </p>
+
+        <div className="lp-portals-grid">
+          <Link to="/login" className="lp-portal-card">
+            <div className="lp-portal-card-glow" />
+            <span className="lp-portal-icon">🏢</span>
+            <p className="lp-portal-title">Manage Your Restaurant</p>
+            <p className="lp-portal-desc">
+              Sign in to your manager dashboard. Update your menu, review your setup,
+              and monitor your restaurant in real time.
+            </p>
+            <span className="lp-portal-arrow">→</span>
+          </Link>
+
+          <Link to="/staff" className="lp-portal-card">
+            <div className="lp-portal-card-glow" />
+            <span className="lp-portal-icon">👨‍🍳</span>
+            <p className="lp-portal-title">Staff Entry</p>
+            <p className="lp-portal-desc">
+              Access the kitchen display and order queue with your restaurant's staff code.
+              No account required.
+            </p>
+            <span className="lp-portal-arrow">→</span>
+          </Link>
+        </div>
+      </section>
+
+      {/* ── Lead form ────────────────────────────────────── */}
+      <section className="lp-partner" id="partner">
+        <p className="lp-section-label">Early access</p>
+        <h2 className="lp-section-title">Partner with us.</h2>
+        <p className="lp-section-sub">
+          DinePulse is invite-only. Submit your details and we'll reach out when
+          your account is ready.
+        </p>
+
+        {success ? (
+          <div className="lp-form-success">
+            ✓ You're on the list. We'll be in touch soon.
+          </div>
+        ) : (
+          <form className="lp-partner-form" onSubmit={handleLeadSubmit}>
+            <div className="lp-input-group">
+              <label htmlFor="lp-restaurant" className="lp-input-label">
+                Restaurant name
+              </label>
+              <input
+                id="lp-restaurant"
+                name="restaurant_name"
+                type="text"
+                required
+                value={form.restaurant_name}
+                onChange={handleChange}
+                placeholder="The Burger Joint"
+                className="lp-input"
+              />
+            </div>
+
+            <div className="lp-input-group">
+              <label htmlFor="lp-email" className="lp-input-label">
+                Email address
+              </label>
+              <input
+                id="lp-email"
+                name="email"
+                type="email"
+                required
+                value={form.email}
+                onChange={handleChange}
+                placeholder="owner@example.com"
+                className="lp-input"
+              />
+            </div>
+
+            {error && <p className="lp-form-error">{error}</p>}
+
+            <button type="submit" disabled={submitting} className="lp-form-submit">
+              {submitting ? 'Submitting…' : 'Request early access →'}
+            </button>
+          </form>
+        )}
+      </section>
+
+      {/* ── Footer ───────────────────────────────────────── */}
+      <footer className="lp-footer">
+        <span className="lp-footer-brand">DinePulse</span>
+        <span className="lp-footer-copy">© 2026 DinePulse. All rights reserved.</span>
+      </footer>
 
     </div>
   )

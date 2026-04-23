@@ -1,9 +1,29 @@
 import { useParams } from 'react-router-dom'
 import { usePublicMenu } from '../hooks/usePublicMenu'
+import { CartProvider, useCart } from '../context/CartContext'
+import CartBar from '../components/CartBar'
+import type { CartItem } from '../types'
 
-export default function RestaurantPage() {
-  const { slug } = useParams<{ slug: string }>()
-  const { restaurant, groupedMenu, isLoading, notFound } = usePublicMenu(slug ?? '')
+// ── Add-to-cart button — must be a child of CartProvider ────────
+function AddButton({ restaurantId, item }: {
+  restaurantId: string
+  item:         Omit<CartItem, 'quantity'>
+}) {
+  const { addItem } = useCart()
+  return (
+    <button
+      className="w-7 h-7 rounded-full bg-[#FF5722] text-white text-lg font-bold flex items-center justify-center leading-none hover:bg-[#E64A19] active:scale-95 transition-all shrink-0"
+      onClick={() => addItem(restaurantId, item)}
+      aria-label={`Add ${item.name}`}
+    >
+      +
+    </button>
+  )
+}
+
+// ── Inner page — has access to CartContext ──────────────────────
+function RestaurantPageContent({ slug }: { slug: string }) {
+  const { restaurant, groupedMenu, isLoading, notFound } = usePublicMenu(slug)
 
   if (isLoading) {
     return (
@@ -30,7 +50,7 @@ export default function RestaurantPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F5F5] font-sans pb-12">
+    <div className="min-h-screen bg-[#F5F5F5] font-sans pb-28">
 
       {/* Page header */}
       <header className="bg-white shadow-sm px-4 py-5">
@@ -60,9 +80,15 @@ export default function RestaurantPage() {
                       <p className="text-xs text-[#757575] mt-0.5">{item.description}</p>
                     )}
                   </div>
-                  <span className="text-sm font-bold text-[#FF5722] shrink-0">
-                    £{parseFloat(String(item.price)).toFixed(2)}
-                  </span>
+                  <div className="flex flex-col items-end gap-2 shrink-0">
+                    <span className="text-sm font-bold text-[#FF5722]">
+                      £{parseFloat(String(item.price)).toFixed(2)}
+                    </span>
+                    <AddButton
+                      restaurantId={restaurant!.id}
+                      item={{ id: item.id, name: item.name, price: item.price }}
+                    />
+                  </div>
                 </li>
               ))}
             </ul>
@@ -77,6 +103,17 @@ export default function RestaurantPage() {
         )}
       </main>
 
+      <CartBar restaurantSlug={slug} />
     </div>
+  )
+}
+
+// ── Route component — owns CartProvider ────────────────────────
+export default function RestaurantPage() {
+  const { slug } = useParams<{ slug: string }>()
+  return (
+    <CartProvider>
+      <RestaurantPageContent slug={slug ?? ''} />
+    </CartProvider>
   )
 }

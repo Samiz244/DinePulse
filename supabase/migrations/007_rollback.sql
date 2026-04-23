@@ -1,0 +1,4 @@
+DROP FUNCTION IF EXISTS update_order_status;
+DROP FUNCTION IF EXISTS insert_order;
+DROP TABLE IF EXISTS order_items;
+DROP TABLE IF EXISTS orders;
