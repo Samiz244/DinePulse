@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
+import { createContext, useContext, useEffect, useRef, useState, ReactNode } from 'react'
 import type { AuthChangeEvent, Session } from '@supabase/supabase-js'
 import { supabase } from '../services/supabaseClient'
 import type { AuthUser, UserRole } from '../types'
@@ -30,34 +30,57 @@ function mapAuthError(message: string): string {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser]           = useState<AuthUser | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const profileController         = useRef<AbortController | null>(null)
 
   async function fetchProfile(userId: string, email: string) {
-    const { data, error } = await supabase
+    profileController.current?.abort()
+    const controller = new AbortController()
+    profileController.current = controller
+    
+
+    const { data, error, status } = await supabase
       .from('profiles')
       .select('full_name, role')
       .eq('id', userId)
-      .single()
+      .maybeSingle()
 
-    if (!error && data) {
-      setUser({ id: userId, email, fullName: data.full_name, role: data.role as UserRole })
+      console.log('[Auth] Profile status:', status)
+      console.log('[Auth] Profile data:', data)
+      console.log('[Auth] Profile error:', error)
+    if (error) {
+      console.error(`[Auth] Query Error | Status: ${status} | Code: ${error.code}`, error)
+      setUser(null)
+      setIsLoading(false)
+      return
     }
+
+    if (data === null) {
+      console.warn(`[Auth] Visibility Gap | Profile ID ${userId} not visible or missing.`)
+      setUser(null)
+      setIsLoading(false)
+      return
+    }
+
+    setUser({ id: userId, email, fullName: data.full_name, role: data.role as UserRole })
     setIsLoading(false)
   }
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) fetchProfile(session.user.id, session.user.email ?? '')
-      else setIsLoading(false)
+      if (!session) setIsLoading(false)
     })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event: AuthChangeEvent, session: Session | null) => {
-        if (session) await fetchProfile(session.user.id, session.user.email ?? '')
-        else { setUser(null); setIsLoading(false) }
+        
+        if (!session) { setUser(null); setIsLoading(false) }
       }
     )
 
-    return () => subscription.unsubscribe()
+    return () => {
+      subscription.unsubscribe()
+      profileController.current?.abort()
+    }
   }, [])
 
   async function signUp(email: string, password: string, fullName: string, role: UserRole) {
@@ -77,8 +100,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function signIn(email: string, password: string) {
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    const { data, error } = await supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password })
     if (error) return { error: mapAuthError(error.message) }
+    if (data.user) {
+      await fetchProfile(data.user.id, data.user.email ?? email)
+    }
     return { error: null }
   }
 

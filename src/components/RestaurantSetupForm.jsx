@@ -45,14 +45,15 @@ export default function RestaurantSetupForm({ onSuccess }) {
     setIsSubmitting(true)
 
     const { error } = await supabase.rpc('create_restaurant', {
-      p_name:     name.trim(),
-      p_cuisine:  cuisine.trim(),
-      p_passcode: passcode,
+      p_name:name.trim(),
+      p_cuisine:cuisine.trim(),
+      p_passcode:passcode,
     })
 
     setIsSubmitting(false)
 
     if (error) {
+      console.error('Create restaurant RPC error:', error)
       setSubmitError('Failed to create restaurant. Please try again.')
       return
     }
