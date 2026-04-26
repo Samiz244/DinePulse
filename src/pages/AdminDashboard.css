@@ -409,26 +409,241 @@
 .mc-add-submit:active   { transform: scale(0.97); }
 .mc-add-submit:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
 
-.mc-list {
+/* Category sections */
+.mc-sections {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1rem;
 }
 
-.mc-item {
+.mc-section {
   background: #fff;
   border-radius: 1rem;
-  padding: 0.875rem 1.125rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.mc-section-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 0.875rem 1.125rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-.mc-item-name {
+.mc-section-name {
   font-size: 0.9375rem;
+  font-weight: 700;
+  color: #212121;
+}
+
+.mc-add-item-btn {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-brand);
+  background: transparent;
+  border: 1px solid var(--color-brand);
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.mc-add-item-btn:hover {
+  background: var(--color-brand);
+  color: #fff;
+}
+
+/* Items list within a category */
+.mc-item-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.mc-item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1.125rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.mc-item-row-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.mc-item-row-name {
+  font-size: 0.875rem;
   font-weight: 600;
   color: #212121;
+}
+
+.mc-item-row-desc {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mc-item-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.mc-item-row-price {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-brand);
+}
+
+.mc-item-edit-btn {
+  font-size: 0.875rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #9ca3af;
+  padding: 0.25rem;
+  border-radius: 0.375rem;
+  line-height: 1;
+  transition: color 0.15s, background 0.15s;
+}
+
+.mc-item-edit-btn:hover {
+  color: var(--color-brand);
+  background: rgba(255, 87, 34, 0.06);
+}
+
+.mc-item-delete-btn {
+  font-size: 0.875rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #9ca3af;
+  padding: 0.25rem;
+  border-radius: 0.375rem;
+  line-height: 1;
+  transition: color 0.15s, background 0.15s;
+}
+
+.mc-item-delete-btn:hover {
+  color: #dc3545;
+  background: #fff1f2;
+}
+
+.mc-item-row--editing {
+  background: rgba(255, 87, 34, 0.04);
+}
+
+/* Options display */
+.mc-item-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: 0.25rem;
+}
+
+.mc-option-tag {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: #6b7280;
+  background: #f3f4f6;
+  border-radius: 9999px;
+  padding: 0.125rem 0.5rem;
+}
+
+/* Form footer row (Add Option + Cancel Edit) */
+.mc-item-form-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.mc-cancel-edit-btn {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6b7280;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  font-family: inherit;
+  transition: color 0.15s;
+}
+
+.mc-cancel-edit-btn:hover { color: #374151; }
+
+/* Add Option button */
+.mc-add-option-btn {
+  align-self: flex-start;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6b7280;
+  background: transparent;
+  border: 1px dashed #d1d5db;
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+  cursor: pointer;
+  font-family: inherit;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.mc-add-option-btn:hover {
+  color: var(--color-brand);
+  border-color: var(--color-brand);
+}
+
+/* Remove button inside an option row */
+.mc-option-remove-btn {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #9ca3af;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem 0.375rem;
+  border-radius: 0.375rem;
+  flex-shrink: 0;
+  transition: color 0.15s, background 0.15s;
+}
+
+.mc-option-remove-btn:hover {
+  color: #dc3545;
+  background: #fff1f2;
+}
+
+.mc-items-empty {
+  font-size: 0.8125rem;
+  color: #bdbdbd;
+  padding: 0.75rem 1.125rem;
+}
+
+/* Add item inline form */
+.mc-item-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.875rem 1.125rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  background: #fafafa;
+}
+
+.mc-item-form-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.mc-price-input {
+  flex: 0 0 8rem;
 }
 
 /* ── QRPanel ─────────────────────────────────────────────────── */
