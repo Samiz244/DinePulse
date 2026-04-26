@@ -31,6 +31,14 @@ export interface MenuItem {
   created_at:    string
 }
 
+export interface Category {
+  id:            string
+  restaurant_id: string
+  name:          string
+  sort_order:    number
+  created_at:    string
+}
+
 export interface CartItem {
   id:       string
   name:     string
