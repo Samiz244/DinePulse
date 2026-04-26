@@ -2,17 +2,19 @@ import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useRestaurant } from '../hooks/useRestaurant'
 import RestaurantSetupForm from '../components/RestaurantSetupForm'
-import MenuPanel from '../components/MenuPanel'
-import QRPanel from '../components/QRPanel'
+import MenuPanel     from '../components/MenuPanel'
+import QRPanel       from '../components/QRPanel'
+import SettingsPanel from '../components/SettingsPanel'
 import type { Restaurant } from '../types'
 import './AdminDashboard.css'
 
-type DashboardTab = 'overview' | 'menu' | 'qr'
+type DashboardTab = 'overview' | 'menu' | 'qr' | 'settings'
 
 const TAB_LABELS: Record<DashboardTab, string> = {
   overview: 'Overview',
   menu:     'Menu',
   qr:       'QR Codes',
+  settings: 'Settings',
 }
 
 export default function AdminDashboard() {
@@ -103,6 +105,10 @@ export default function AdminDashboard() {
 
         {activeTab === 'qr' && (
           <QRPanel restaurant={restaurant} />
+        )}
+
+        {activeTab === 'settings' && (
+          <SettingsPanel restaurant={restaurant} onUpdate={refetch} />
         )}
 
       </main>
